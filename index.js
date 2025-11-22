@@ -79,6 +79,15 @@ async function run() {
             res.send(result) // Sending the data back to the client
         })
 
+        // Get Products by email
+        app.get('/products/byEmail/:email',async(req,res)=> {
+            const email = req.params.email;
+            const query = {ownerEmail: email};// Converting as in mongoDb
+            const result = await productCollection.find(query).toArray();
+            res.send(result)
+        })
+
+        // delete document
         app.delete('/products/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
