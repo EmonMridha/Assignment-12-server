@@ -12,9 +12,12 @@
   "type": "commonjs",
   "description": "",
   "dependencies": {
+    "@stripe/react-stripe-js": "^5.4.0",
+    "@stripe/stripe-js": "^8.5.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
-    "mongodb": "^7.0.0"
+    "mongodb": "^7.0.0",
+    "stripe": "^20.0.0"
   }
 }

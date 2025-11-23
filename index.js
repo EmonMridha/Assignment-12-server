@@ -11,7 +11,6 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.v9x5iie.mongodb.net/?appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -38,6 +37,8 @@ async function run() {
 
             res.send(result) // Sending the confirmation message to the client
         })
+
+       
 
         // Handle Like/vote count
         app.patch('/products/:id/vote', async (req, res) => {
