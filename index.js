@@ -38,7 +38,30 @@ async function run() {
             res.send(result) // Sending the confirmation message to the client
         })
 
-       
+        // Update product by ID 
+        app.put('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            const updatedData = req.body;
+
+            delete updatedData._id;
+
+            try {
+                const result = await productCollection.updateOne(
+                    { _id: new ObjectId(id) },
+                    { $set: updatedData }
+                );
+                if (result.modifiedCount > 0) {
+                    res.send({ success: true, modifiedCount: result.modifiedCount });
+                } else {
+                    res.send({ success: false, message: 'No changes made or product not found.' });
+                }
+            } catch (error) {
+                console.error(error);
+                res.status(500).send({ success: false, message: 'Internal Server Error' });
+            }
+        })
+
+
 
         // Handle Like/vote count
         app.patch('/products/:id/vote', async (req, res) => {
@@ -60,7 +83,7 @@ async function run() {
             const updatedProduct = await productCollection.findOneAndUpdate(
                 query, // help to find the document
                 updateDoc, // updates with that
-                {returnDocument:'after'}
+                { returnDocument: 'after' }
             ) // Commanding to update with the updatedDoc and saving the updated document here
 
             res.send(updatedProduct) // Sending the updated document to the client
@@ -81,9 +104,9 @@ async function run() {
         })
 
         // Get Products by email
-        app.get('/products/byEmail/:email',async(req,res)=> {
+        app.get('/products/byEmail/:email', async (req, res) => {
             const email = req.params.email;
-            const query = {ownerEmail: email};// Converting as in mongoDb
+            const query = { ownerEmail: email };// Converting as in mongoDb
             const result = await productCollection.find(query).toArray();
             res.send(result)
         })
