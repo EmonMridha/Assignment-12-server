@@ -48,6 +48,7 @@ async function run() {
             try {
                 const result = await productCollection.updateOne(
                     { _id: new ObjectId(id) },
+
                     { $set: updatedData }
                 );
                 if (result.modifiedCount > 0) {
@@ -61,7 +62,36 @@ async function run() {
             }
         })
 
+        // update status to accepted
+        app.patch('/products/accept/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await productCollection.updateOne(query, { $set: { status: 'accepted' } });
+            res.send(result)
+        })
 
+        // Update status to Reject
+        app.patch('/products/reject/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await productCollection.updateOne(query, { $set: { status: 'rejected' } })
+        })
+
+        // Update make featured status
+        app.patch('/products/feature/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await productCollection.updateOne(query, { $set: { isFeatured: true } });
+            res.send(result);
+        })
+
+        // Update reported to true
+        app.patch('/products/reported/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await productCollection.updateOne(query, { $set: { reported: true } })
+            res.send(result)
+        })
 
         // Handle Like/vote count
         app.patch('/products/:id/vote', async (req, res) => {
@@ -95,6 +125,22 @@ async function run() {
             res.send(result)
         })
 
+        // Get Data which are accepted
+        app.get('/products/accepted', async (req, res) => {
+            const query = { status: 'accepted' }
+            const result = await productCollection.find(query).toArray()
+            res.send(result)
+        })
+
+        app.get('/products/Featured', async (req, res) => {
+            const query = {
+                status: 'accepted',
+                isFeatured: true
+            }
+            const result = await productCollection.find(query).toArray();
+            res.send(result);
+        })
+
         // Get products by id
         app.get('/products/:id', async (req, res) => {
             const id = req.params.id; // Getting the id from the 
@@ -107,6 +153,13 @@ async function run() {
         app.get('/products/byEmail/:email', async (req, res) => {
             const email = req.params.email;
             const query = { ownerEmail: email };// Converting as in mongoDb
+            const result = await productCollection.find(query).toArray();
+            res.send(result)
+        })
+
+        // Get Reported Products
+        app.get('/products/reported', async (req, res) => {
+            const query = { reported: true };
             const result = await productCollection.find(query).toArray();
             res.send(result)
         })
