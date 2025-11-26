@@ -28,6 +28,7 @@ async function run() {
         // await client.connect();
 
         const productCollection = client.db('Assignment-12').collection('Products');
+        const userCollection = client.db('Assignment-12').collection('Users')
 
         // Post Product
         app.post('/products', async (req, res) => {
@@ -37,6 +38,34 @@ async function run() {
 
             res.send(result) // Sending the confirmation message to the client
         })
+
+        // Add Users info
+        app.post('/users', async (req, res) => {
+            try {
+                const user = req.body;
+
+                const query = { email: user.email };
+                const existing = await userCollection.findOne(query);
+
+                if (existing) {
+                    return res.send({ message: 'User already exists' });
+                }
+
+                const result = await userCollection.insertOne({
+                    name: user.name,
+                    email: user.email,
+                    photoURL: user.photoURL,
+                    role: "user",  // default role
+                    createdAt: new Date()
+                });
+
+                res.send(result);
+
+            } catch (error) {
+                res.status(500).send({ message: 'Error saving user', error });
+            }
+        });
+
 
         // Update product by ID 
         app.put('/products/:id', async (req, res) => {
@@ -159,9 +188,20 @@ async function run() {
 
         // Get Reported Products
         app.get('/products/reported', async (req, res) => {
-            const query = { reported: true };
+            const query = { reported: true, status: 'accepted' };
             const result = await productCollection.find(query).toArray();
             res.send(result)
+        })
+
+        // Get all users
+        app.get('/users', async (req, res) => {
+            try {
+                const result = await userCollection.find().toArray();
+                res.send(result)
+            }
+            catch (error) {
+                console.log(error);
+            }
         })
 
         // delete document
