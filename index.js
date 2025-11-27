@@ -29,6 +29,7 @@ async function run() {
 
         const productCollection = client.db('Assignment-12').collection('Products');
         const userCollection = client.db('Assignment-12').collection('Users')
+        const couponCollection = client.db('Assignment-12').collection('Coupons')
 
         // Post Product
         app.post('/products', async (req, res) => {
@@ -37,6 +38,11 @@ async function run() {
             const result = await productCollection.insertOne(data) // Sending the data to the database and saving the confirmation message here
 
             res.send(result) // Sending the confirmation message to the client
+        })
+
+        app.post('/coupons', async (req, res) => {
+            const data = req.body;
+            const result = await couponCollection.insertOne(data);
         })
 
         // Add Users info
@@ -148,6 +154,39 @@ async function run() {
             res.send(updatedProduct) // Sending the updated document to the client
         })
 
+        // Make role Moderator
+        app.patch('/users/makeModerator/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const updateDoc = {
+                $set: { role: 'moderator' }
+            };
+            const result = await userCollection.updateOne(query, updateDoc);
+            res.send(result)
+        })
+
+        // Make role Admin
+        app.patch('/users/makeAdmin/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const updateDoc = {
+                $set: { role: 'admin' }
+            };
+            const result = await userCollection.updateOne(query, updateDoc);
+            res.send(result)
+        })
+
+        // Update coupon data
+        app.patch('/coupon/edit/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const updateData = req.body;
+            const updateDoc = { $set: updateData };
+            const result = await couponCollection.updateOne(query, updateDoc);
+            res.send(result)
+
+        })
+
         // Get all products
         app.get('/products', async (req, res) => {
             const result = await productCollection.find().toArray();
@@ -204,12 +243,25 @@ async function run() {
             }
         })
 
+        app.get('/coupons', async (req, res) => {
+            const result = await couponCollection.find().toArray();
+            res.send(result)
+        })
+
         // delete document
         app.delete('/products/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await productCollection.deleteOne(query);// commanding to delete data matching with query and saving the confirmation message here
             res.send(result) // 
+        })
+
+        // Delete coupon 
+        app.delete('/coupons/delete/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await couponCollection.deleteOne(query);
+            res.send(result)
         })
         // Send a ping to confirm a successful connection
         // await client.db("admin").command({ ping: 1 });
